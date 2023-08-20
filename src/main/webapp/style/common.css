@@ -1,0 +1,10 @@
+@font-face {
+    font-family: Custom;
+    src: url(../fonts/nice.ttf);
+}
+
+body {
+    background-image: url("../assets/background.jpg");
+    color: white;
+    font-family: Custom, serif;
+}
