@@ -1,5 +1,7 @@
 package by.teachmeskills.springbootproject.dto;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +16,15 @@ import java.util.List;
 @Getter
 @Setter
 public class CategoryDto extends BaseDto {
+
+    @Size(min = 1, max = 50, message = "Category name is empty or longer than 50 chars")
+    @NotNull(message = "Null category name")
     private String name;
+
+    @Size(min = 1, max = 50, message = "Category name is empty or longer than 50 chars")
+    @NotNull(message = "Null category imagePath")
     private String imagePath;
+
+    @NotNull(message = "List of category products is null")
     private List<ProductDto> products;
 }

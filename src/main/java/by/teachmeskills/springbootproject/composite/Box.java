@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Box implements Component{
-    private List<Component> components;
+    private final List<Component> components;
     public Box() {
         components = new ArrayList<>();
     }
@@ -23,7 +23,7 @@ public class Box implements Component{
         // getPrice() called and iterate through all components in lower hierarchy, which can be done by this method itself instead, however,
         // in order to make this method simpler and don't create more variables, it's left this way
         String margin = "\t".repeat(depth);
-        var wrapper = new Object(){ StringBuilder result = new StringBuilder(margin); };
+        var wrapper = new Object(){ final StringBuilder result = new StringBuilder(margin); };
         if (component instanceof Box) {
             wrapper.result.append("Box ").append(component.getPrice()).append("\n");
             ((Box)component).components.forEach(c -> wrapper.result.append(convert(c, depth + 1)));

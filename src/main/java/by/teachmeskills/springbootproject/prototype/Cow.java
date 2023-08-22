@@ -5,7 +5,7 @@ import java.util.List;
 
 public class Cow implements Prototype{
     private String name;
-    private List<String> favoriteFood;
+    private final List<String> favoriteFood;
 
     Cow(String name, List<String> favoriteFood) {
         this.name = name;

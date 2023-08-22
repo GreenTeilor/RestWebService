@@ -1,34 +1,39 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constants.SessionAttributesNames;
+import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.dto.UserDto;
+import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.entities.User;
+import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttribute;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+
+@RestController
 @RequestMapping("profile")
 @RequiredArgsConstructor
+@Validated
 public class ProfileController {
 
     private final UserService userService;
 
-    @GetMapping
-    public ModelAndView openProfilePage(@SessionAttribute(SessionAttributesNames.USER) User user) {
-        return userService.getUserOrders(user);
+    @GetMapping("{id}")
+    public UserInfoResponse getUserInfo(@IntConstraint @PathVariable String id) throws NoResourceFoundException {
+        return userService.getUserInfo(Integer.parseInt(id));
     }
 
     @PostMapping
-    public ModelAndView addAddressAndPhoneNumberInfo(@Valid @ModelAttribute(SessionAttributesNames.USER) User user, BindingResult bindingResult, @SessionAttribute(SessionAttributesNames.USER) User userInSession) {
-        return userService.addAddressAndPhoneNumberInfo(user.getAddress(), user.getPhoneNumber(), userInSession, bindingResult);
+    public UserDto addAddressAndPhoneNumberInfo(@Valid @RequestBody User user, BindingResult bindingResult) {
+        return userService.addAddressAndPhoneNumberInfo(user.getAddress(), user.getPhoneNumber(), user);
     }
 
 }

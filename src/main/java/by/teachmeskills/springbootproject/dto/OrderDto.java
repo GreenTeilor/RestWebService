@@ -1,5 +1,7 @@
 package by.teachmeskills.springbootproject.dto;
 
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,8 +18,15 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderDto extends BaseDto{
+    @NotNull(message = "Order date is null")
     private LocalDate date;
+
+    @NotNull(message = "Order list of products is null")
     private List<ProductDto> products;
+
+    @NotNull(message = "Order userId is null")
     private int userId;
+
+    @Digits(integer = 6, fraction = 2, message = "Order price doesn't correspond to price format")
     private BigDecimal price;
 }

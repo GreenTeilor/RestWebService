@@ -1,42 +1,26 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constants.PagesPaths;
-import by.teachmeskills.springbootproject.constants.RequestAttributesNames;
-import by.teachmeskills.springbootproject.constants.SessionAttributesNames;
-import by.teachmeskills.springbootproject.entities.User;
+import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.exceptions.AuthorizationException;
 import by.teachmeskills.springbootproject.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping("login")
-@SessionAttributes(SessionAttributesNames.USER)
 @RequiredArgsConstructor
+@Validated
 public class LoginController {
     private final UserService userService;
 
-    @GetMapping
-    public ModelAndView openLoginPage() {
-        return new ModelAndView(PagesPaths.LOGIN_PAGE);
-    }
-
     @PostMapping
-    public ModelAndView login(@Valid @ModelAttribute(RequestAttributesNames.USER) User user, BindingResult bindingResult, Model model) throws AuthorizationException {
-        return userService.getUser(user.getEmail(), user.getPassword(), bindingResult, model);
-    }
-
-    @ModelAttribute(RequestAttributesNames.USER)
-    public User initializeUserInSession() {
-        return new User();
+    public UserDto login(@Valid @RequestBody UserDto user, BindingResult bindingResult) throws AuthorizationException {
+        return userService.authorizeUser(user.getEmail(), user.getPassword());
     }
 }
