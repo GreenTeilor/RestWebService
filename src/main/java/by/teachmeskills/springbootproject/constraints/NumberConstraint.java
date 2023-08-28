@@ -1,6 +1,6 @@
 package by.teachmeskills.springbootproject.constraints;
 
-import by.teachmeskills.springbootproject.constraints.validators.IntConstraintValidator;
+import by.teachmeskills.springbootproject.constraints.validators.NumberConstraintValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -13,11 +13,11 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Target({ PARAMETER })
 @Retention(RUNTIME)
-@Constraint(validatedBy = IntConstraintValidator.class)
+@Constraint(validatedBy = NumberConstraintValidator.class)
 @Documented
-public @interface IntConstraint {
+public @interface NumberConstraint {
 
-    String message() default "Passed parameter is not int";
+    String message() default "Not a number";
 
     Class<?>[] groups() default { };
 

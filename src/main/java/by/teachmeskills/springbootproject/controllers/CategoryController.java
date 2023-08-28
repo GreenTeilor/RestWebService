@@ -1,6 +1,6 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.CategoryDto;
 import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
@@ -30,23 +30,23 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("{name}")
-    public List<ProductDto> getCategoryProducts(@PathVariable String name) {
+    public List<ProductDto> getProducts(@PathVariable String name) {
         return productService.getCategoryProducts(name);
     }
 
     @PostMapping("addCategory")
-    public List<CategoryDto> addCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws UserAlreadyExistsException {
+    public List<CategoryDto> add(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws UserAlreadyExistsException {
         categoryService.create(categoryDto);
         return categoryService.read();
     }
 
     @DeleteMapping("removeCategory/{id}")
-    public void removeCategory(@IntConstraint @PathVariable String id) {
+    public void remove(@NumberConstraint @PathVariable String id) {
         categoryService.delete(Integer.parseInt(id));
     }
 
     @PutMapping("updateCategory")
-    public CategoryDto updateCategory(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
+    public CategoryDto update(@Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
         return categoryService.update(categoryDto);
     }
 }

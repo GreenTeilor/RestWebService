@@ -8,12 +8,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class CartDto {
-    @NotNull(message = "List of products in cart is null")
-    private final List<ProductDto> products;
-
-    public CartDto() {
-        products = new ArrayList<>();
-    }
+    @NotNull(message = "List of products in cart is empty")
+    private final List<ProductDto> products = new ArrayList<>();
 
     public void addProduct(ProductDto product) {
         if (!products.contains(product))

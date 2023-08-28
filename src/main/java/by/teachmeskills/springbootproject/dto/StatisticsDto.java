@@ -15,22 +15,22 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 public class StatisticsDto {
-    @NotNull(message = "Не введено")
+    @NotNull(message = "Empty userId")
     int userId;
 
-    @Min(value = 0, message = "Минимум 0")
-    @NotNull
+    @Min(value = 0, message = "Мin 0")
+    @NotNull(message = "Empty daysRegistered")
     int daysRegistered;
 
-    @Min(value = 0, message = "Минимум 0")
-    @NotNull
+    @Min(value = 0, message = "Мin 0")
+    @NotNull(message = "Empty orderCount")
     int orderCount;
 
-    @Min(value = 0, message = "Минимум 0")
-    @NotNull
+    @Min(value = 0, message = "Min 0")
+    @NotNull(message = "Empty booksCount")
     int booksCount;
 
-    @Size(min = 10, max = 90, message = "Длина адреса должна быть в пределах от 10 до 90 символов")
-    @NotNull
+    @Size(min = 1, max = 50, message = "Category name is empty or longer than 50 chars")
+    @NotNull(message = "Empty favoriteGenre")
     String favoriteGenre;
 }

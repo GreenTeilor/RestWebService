@@ -9,10 +9,10 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class SearchCriteriaDto {
-    @NotNull(message = "Pagination number in searchCriteria is null")
+    @NotNull(message = "Pagination number in searchCriteria is empty")
     private Integer paginationNumber;
 
-    @NotNull(message = "KeyWords in searchCriteria is null")
+    @NotNull(message = "KeyWords in searchCriteria is empty")
     private String keyWords;
     private String searchCategory;
     private Integer priceFrom;

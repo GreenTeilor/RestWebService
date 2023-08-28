@@ -58,11 +58,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, User user) {
+    public UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user) {
         user.setAddress(address);
         user.setPhoneNumber(phoneNumber);
         userRepository.updateAddressAndPhoneNumber(address, phoneNumber, user.getEmail());
-        return userConverter.toDto(user);
+        return user;
     }
 
     @Override

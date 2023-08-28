@@ -1,10 +1,10 @@
 package by.teachmeskills.springbootproject.constraints.validators;
 
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-public class IntConstraintValidator implements ConstraintValidator<IntConstraint, String> {
+public class NumberConstraintValidator implements ConstraintValidator<NumberConstraint, String> {
     @Override
     public boolean isValid(String id, ConstraintValidatorContext constraintContext) {
         if ( id == null ) {

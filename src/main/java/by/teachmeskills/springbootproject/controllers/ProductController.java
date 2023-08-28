@@ -1,6 +1,6 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
@@ -28,22 +28,22 @@ public class ProductController {
     private final ProductService service;
 
     @GetMapping("{id}")
-    public ProductDto getProduct(@IntConstraint @PathVariable String id) throws NoResourceFoundException {
+    public ProductDto get(@NumberConstraint @PathVariable String id) throws NoResourceFoundException {
         return service.getProductById(Integer.parseInt(id));
     }
 
     @DeleteMapping("removeProduct/{id}")
-    public void removeProduct(@IntConstraint @PathVariable String id) {
+    public void remove(@NumberConstraint @PathVariable String id) {
         service.delete(Integer.parseInt(id));
     }
 
     @PutMapping("updateProduct")
-    public ProductDto updateProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) {
+    public ProductDto update(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) {
         return service.update(productDto);
     }
 
     @PostMapping("createProduct")
-    public List<ProductDto> addProduct(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) throws UserAlreadyExistsException {
+    public List<ProductDto> add(@Valid @RequestBody ProductDto productDto, BindingResult bindingResult) throws UserAlreadyExistsException {
         service.create(productDto);
         return service.read();
     }

@@ -18,13 +18,13 @@ import java.util.List;
 @Getter
 @Setter
 public class OrderDto extends BaseDto{
-    @NotNull(message = "Order date is null")
+    @NotNull(message = "Order date is empty")
     private LocalDate date;
 
-    @NotNull(message = "Order list of products is null")
+    @NotNull(message = "Order list of products is empty")
     private List<ProductDto> products;
 
-    @NotNull(message = "Order userId is null")
+    @NotNull(message = "Order userId is empty")
     private int userId;
 
     @Digits(integer = 6, fraction = 2, message = "Order price doesn't correspond to price format")

@@ -1,9 +1,8 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
-import by.teachmeskills.springbootproject.entities.User;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.services.UserService;
 import jakarta.validation.Valid;
@@ -27,13 +26,13 @@ public class ProfileController {
     private final UserService userService;
 
     @GetMapping("{id}")
-    public UserInfoResponse getUserInfo(@IntConstraint @PathVariable String id) throws NoResourceFoundException {
+    public UserInfoResponse getUserInfo(@NumberConstraint @PathVariable String id) throws NoResourceFoundException {
         return userService.getUserInfo(Integer.parseInt(id));
     }
 
     @PostMapping
-    public UserDto addAddressAndPhoneNumberInfo(@Valid @RequestBody User user, BindingResult bindingResult) {
-        return userService.addAddressAndPhoneNumberInfo(user.getAddress(), user.getPhoneNumber(), user);
+    public UserDto addAddressAndPhoneNumberInfo(@Valid @RequestBody UserDto userDto, BindingResult bindingResult) {
+        return userService.addAddressAndPhoneNumberInfo(userDto.getAddress(), userDto.getPhoneNumber(), userDto);
     }
 
 }

@@ -1,7 +1,7 @@
 package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.constants.SessionAttributesNames;
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.dto.SearchCriteriaDto;
 import by.teachmeskills.springbootproject.services.ProductService;
@@ -42,20 +42,20 @@ public class SearchController {
     }
 
     @GetMapping("next")
-    public List<ProductDto> paginationNext(@Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
+    public List<ProductDto> findPagedNext(@Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
         searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() + 1);
         return productService.findProducts(searchCriteriaDto);
     }
 
     @GetMapping("prev")
-    public List<ProductDto> paginationPrev(@Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
+    public List<ProductDto> findPagedPrev(@Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
         searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() - 1);
         return productService.findProducts(searchCriteriaDto);
     }
 
     @GetMapping("{pageNumber}")
-    public List<ProductDto> paginationPageNumber(@IntConstraint @PathVariable String pageNumber,
-                                                 @Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
+    public List<ProductDto> findPagedNumber(@NumberConstraint @PathVariable String pageNumber,
+                                             @Valid @RequestBody SearchCriteriaDto searchCriteriaDto, BindingResult bindingResult) {
         searchCriteriaDto.setPaginationNumber(Integer.parseInt(pageNumber));
         return productService.findProducts(searchCriteriaDto);
     }

@@ -1,7 +1,7 @@
 package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.constants.SessionAttributesNames;
-import by.teachmeskills.springbootproject.constraints.IntConstraint;
+import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.OrderDto;
 import by.teachmeskills.springbootproject.dto.CartDto;
 import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
@@ -33,18 +33,18 @@ public class CartController {
     private final UserService userService;
 
     @PostMapping("addProduct/{id}")
-    public CartDto addProduct(@IntConstraint @PathVariable String id, @Valid @RequestBody CartDto cartDto, BindingResult bindingResult) throws
+    public CartDto addProduct(@NumberConstraint @PathVariable String id, @Valid @RequestBody CartDto cartDto, BindingResult bindingResult) throws
             NoResourceFoundException {
         return productService.addProductToCart(Integer.parseInt(id), cartDto);
     }
 
     @DeleteMapping("removeProduct/{id}")
-    public CartDto removeProduct(@IntConstraint @PathVariable String id, @Valid @RequestBody CartDto cartDto, BindingResult bindingResult) {
+    public CartDto removeProduct(@NumberConstraint @PathVariable String id, @Valid @RequestBody CartDto cartDto, BindingResult bindingResult) {
         return productService.removeProductFromCart(Integer.parseInt(id), cartDto);
     }
 
     @DeleteMapping("clear")
-    public CartDto clearCart(@Valid @RequestBody CartDto cartDto, BindingResult bindingResult) {
+    public CartDto clear(@Valid @RequestBody CartDto cartDto, BindingResult bindingResult) {
         return productService.removeAllProductsFromCart(cartDto);
     }
 

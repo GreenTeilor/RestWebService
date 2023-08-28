@@ -36,18 +36,18 @@ public class UserDto extends BaseDto {
     private String email;
 
     @Past(message = "User birthdate is in future")
-    @NotNull(message = "Null user birthDate")
+    @NotNull(message = "Empty user birthDate")
     private LocalDate birthDate;
 
-    @NotNull(message = "Null user registrationDate")
+    @NotNull(message = "Empty user registrationDate")
     private LocalDate registrationDate;
 
     @Digits(integer = 6, fraction = 2, message = "User balance doesn't correspond to balance format")
-    @NotNull(message = "Null user balance")
+    @NotNull(message = "Empty user balance")
     private BigDecimal balance;
 
     @Size(min = 3, message = "User password length is less than 3 chars")
-    @NotNull(message = "Null user password")
+    @NotNull(message = "Empty user password")
     private String password;
 
     @Size(min = 10, max = 90, message = "User address length is less than 10 or more than 90")
@@ -56,6 +56,6 @@ public class UserDto extends BaseDto {
     @Pattern(regexp = "^\\+375((29)|(44)|(25)|(33))[0-9]{7}$", message = "Incorrect user phone number")
     private String phoneNumber;
 
-    @NotNull(message = "Null user orders")
+    @NotNull(message = "Empty user orders")
     private List<OrderDto> orders;
 }

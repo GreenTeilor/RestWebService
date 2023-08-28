@@ -18,13 +18,13 @@ import java.util.List;
 public class CategoryDto extends BaseDto {
 
     @Size(min = 1, max = 50, message = "Category name is empty or longer than 50 chars")
-    @NotNull(message = "Null category name")
+    @NotNull(message = "Empty category name")
     private String name;
 
     @Size(min = 1, max = 50, message = "Category name is empty or longer than 50 chars")
-    @NotNull(message = "Null category imagePath")
+    @NotNull(message = "Empty category imagePath")
     private String imagePath;
 
-    @NotNull(message = "List of category products is null")
+    @NotNull(message = "List of category products is empty")
     private List<ProductDto> products;
 }

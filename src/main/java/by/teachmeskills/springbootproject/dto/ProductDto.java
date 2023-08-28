@@ -18,22 +18,22 @@ import java.math.BigDecimal;
 @Setter
 public class ProductDto extends BaseDto{
     @Size(min = 1, max = 50, message = "Product name is empty or longer than 50 chars")
-    @NotNull(message = "Product name is null")
+    @NotNull(message = "Product name is empty")
     private String name;
 
     @Size(min = 1, max = 350, message = "Product description is empty or longer than 350 chars")
-    @NotNull(message = "Product description is null")
+    @NotNull(message = "Product description is empty")
     private String description;
 
     @Size(min = 1, max = 50, message = "Product imagePath is empty or longer than 50 chars")
-    @NotNull(message = "Product imagePath is null")
+    @NotNull(message = "Product imagePath is empty")
     private String imagePath;
 
     @Size(min = 1, max = 50, message = "Product categoryName is empty or longer than 50 chars")
-    @NotNull(message = "Product categoryName is null")
+    @NotNull(message = "Product categoryName is empty")
     private String categoryName;
 
     @Digits(integer = 6, fraction = 2, message = "Product price doesn't correspond to price format")
-    @NotNull(message = "Product price is null")
+    @NotNull(message = "Product price is empty")
     private BigDecimal price;
 }
