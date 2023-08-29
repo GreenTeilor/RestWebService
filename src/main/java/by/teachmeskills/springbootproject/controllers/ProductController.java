@@ -5,6 +5,8 @@ import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
 import by.teachmeskills.springbootproject.services.ProductService;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -24,8 +26,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "products", description = "Product endpoints")
@@ -34,7 +39,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Validated
 public class ProductController {
-    private final ProductService service;
+    private final ProductService productService;
 
     @Operation(
             summary = "Get product",
@@ -48,7 +53,7 @@ public class ProductController {
     })
     @GetMapping("{id}")
     public ProductDto get(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id) throws NoResourceFoundException {
-        return service.getProductById(Integer.parseInt(id));
+        return productService.getProductById(Integer.parseInt(id));
     }
 
     @Operation(
@@ -62,7 +67,7 @@ public class ProductController {
     })
     @DeleteMapping("removeProduct/{id}")
     public void remove(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id) {
-        service.delete(Integer.parseInt(id));
+        productService.delete(Integer.parseInt(id));
     }
 
     @Operation(
@@ -78,7 +83,7 @@ public class ProductController {
     @PutMapping("updateProduct")
     public ProductDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                              BindingResult bindingResult) {
-        return service.update(productDto);
+        return productService.update(productDto);
     }
 
     @Operation(
@@ -94,7 +99,38 @@ public class ProductController {
     @PostMapping("createProduct")
     public List<ProductDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                                 BindingResult bindingResult) throws UserAlreadyExistsException {
-        service.create(productDto);
-        return service.read();
+        productService.create(productDto);
+        return productService.read();
+    }
+
+    @Operation(
+            summary = "Save products to file",
+            description = "Save products to .csv file")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were saved"
+            )
+    })
+    @PostMapping("saveProducts")
+    public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product objects") @Valid @RequestBody List<ProductDto> products,
+                           BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+        productService.saveToFile(products);
+    }
+
+    @Operation(
+            summary = "Load products from file",
+            description = "Load products from .csv file and persist in database")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Products were loaded",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
+            )
+    })
+    @GetMapping ("loadProducts")
+    public List<ProductDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
+            throws IOException {
+        return productService.loadFromFile(file);
     }
 }

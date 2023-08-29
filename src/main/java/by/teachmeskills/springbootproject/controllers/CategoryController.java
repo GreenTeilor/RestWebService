@@ -6,6 +6,8 @@ import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
 import by.teachmeskills.springbootproject.services.CategoryService;
 import by.teachmeskills.springbootproject.services.ProductService;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -25,8 +27,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @Tag(name = "categories", description = "Category endpoints")
@@ -97,5 +102,36 @@ public class CategoryController {
     @PutMapping("updateCategory")
     public CategoryDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
         return categoryService.update(categoryDto);
+    }
+
+    @Operation(
+            summary = "Save categories to file",
+            description = "Save categories to .csv file")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Categories were saved"
+            )
+    })
+    @PostMapping("saveCategories")
+    public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category objects") @Valid @RequestBody List<CategoryDto> categories,
+                           BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
+        categoryService.saveToFile(categories);
+    }
+
+    @Operation(
+            summary = "Load categories from file",
+            description = "Load categories from .csv file and persist in database")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Categories were loaded",
+                    content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
+            )
+    })
+    @GetMapping ("loadCategories")
+    public List<CategoryDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
+            throws IOException {
+        return categoryService.loadFromFile(file);
     }
 }

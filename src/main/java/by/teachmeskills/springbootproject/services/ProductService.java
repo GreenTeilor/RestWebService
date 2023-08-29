@@ -4,7 +4,11 @@ import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.dto.CartDto;
 import by.teachmeskills.springbootproject.dto.SearchCriteriaDto;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface ProductService extends BaseService<ProductDto>{
@@ -14,4 +18,6 @@ public interface ProductService extends BaseService<ProductDto>{
     CartDto addProductToCart(int id, CartDto cartDto) throws NoResourceFoundException;
     CartDto removeProductFromCart(int id, CartDto cartDto);
     CartDto removeAllProductsFromCart(CartDto cartDto);
+    void saveToFile(List<ProductDto> products) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
+    List<ProductDto> loadFromFile(MultipartFile file) throws IOException;
 }

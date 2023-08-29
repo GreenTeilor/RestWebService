@@ -1,11 +1,13 @@
 package by.teachmeskills.springbootproject.services.implementation;
 
 import by.teachmeskills.springbootproject.dto.OrderDto;
+import by.teachmeskills.springbootproject.dto.OrderProductDto;
 import by.teachmeskills.springbootproject.dto.StatisticsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.dto.converters.OrderConverter;
+import by.teachmeskills.springbootproject.dto.converters.OrdersProductsConverter;
 import by.teachmeskills.springbootproject.dto.converters.ProductConverter;
 import by.teachmeskills.springbootproject.dto.converters.StatisticsConverter;
 import by.teachmeskills.springbootproject.dto.converters.UserConverter;
@@ -18,13 +20,29 @@ import by.teachmeskills.springbootproject.exceptions.InsufficientFundsException;
 import by.teachmeskills.springbootproject.exceptions.NoProductsInOrderException;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
+import by.teachmeskills.springbootproject.repositories.OrderRepository;
 import by.teachmeskills.springbootproject.repositories.UserRepository;
 import by.teachmeskills.springbootproject.services.UserService;
+import com.opencsv.CSVWriter;
+import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.Writer;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,6 +56,8 @@ public class UserServiceImpl implements UserService {
     private final OrderConverter orderConverter;
     private final ProductConverter productConverter;
     private final StatisticsConverter statisticsConverter;
+    private final OrdersProductsConverter ordersProductsConverter;
+    private final OrderRepository orderRepository;
 
     @Override
     public UserDto getUserById(int id) throws NoResourceFoundException {
@@ -94,6 +114,34 @@ public class UserServiceImpl implements UserService {
         cartDto.clear();
         List<Order> orders = user.getOrders();
         return orderConverter.toDto(orders.get(orders.size() - 1));
+    }
+
+    @Override
+    public void saveOrdersToFile(List<OrderDto> orders) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        try (Writer writer = Files.newBufferedWriter(Paths.get("src/main/resources/orders_products.csv"))) {
+            StatefulBeanToCsv<OrderProductDto> beanToCsv = new StatefulBeanToCsvBuilder<OrderProductDto>(writer)
+                    .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                    .withSeparator('~')
+                    .build();
+            beanToCsv.write(ordersProductsConverter.fromOrderDto(orders));
+        }
+    }
+
+    @Override
+    @Transactional
+    public List<OrderDto> loadOrdersFromFile(MultipartFile file) throws IOException {
+        try (Reader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            CsvToBean<OrderProductDto> csvToBean = new CsvToBeanBuilder<OrderProductDto>(reader)
+                    .withType(OrderProductDto.class)
+                    .withIgnoreLeadingWhiteSpace(true)
+                    .withSeparator('~')
+                    .build();
+            List<OrderProductDto> orderProductDtos = new ArrayList<>();
+            csvToBean.stream().forEach(orderProductDtos::add);
+            List<OrderDto> orders = ordersProductsConverter.toOrdersDto(orderProductDtos);
+            orders.stream().map(orderConverter::fromDto).forEach(orderRepository::create);
+            return orders;
+        }
     }
 
     @Override
