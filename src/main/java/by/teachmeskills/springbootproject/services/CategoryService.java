@@ -1,6 +1,6 @@
 package by.teachmeskills.springbootproject.services;
 
-import by.teachmeskills.springbootproject.entities.Category;
+import by.teachmeskills.springbootproject.dto.CategoryDto;
 
-public interface CategoryService extends BaseService<Category>{
+public interface CategoryService extends BaseService<CategoryDto>{
 }

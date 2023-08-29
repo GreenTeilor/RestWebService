@@ -1,16 +1,18 @@
 package by.teachmeskills.springbootproject.utils;
 
-import org.springframework.validation.BindingResult;
-import org.springframework.web.servlet.ModelAndView;
-
-import java.util.Objects;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ErrorPopulatorUtils {
 
-    public static void populateError(String field, ModelAndView modelAndView, BindingResult bindingResult) {
-        if (bindingResult.hasFieldErrors(field)) {
-            modelAndView.addObject(field + "Error", Objects.requireNonNull(bindingResult.getFieldError(field))
-                    .getDefaultMessage());
-        }
+    public static Map<String, String> populateErrors(String message) {
+        Map<String, String> errors = new HashMap<>();
+        Arrays.stream(message.split(", ")).toList().forEach(errorMessage -> {
+            List<String> pair = Arrays.stream(errorMessage.split(": ")).toList();
+            errors.put(pair.get(0), pair.get(1));
+        });
+        return errors;
     }
 }

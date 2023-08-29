@@ -1,15 +1,17 @@
 package by.teachmeskills.springbootproject.exceptions;
 
-import by.teachmeskills.springbootproject.constants.PagesPaths;
-import by.teachmeskills.springbootproject.constants.RequestAttributesNames;
+import by.teachmeskills.springbootproject.utils.ErrorPopulatorUtils;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.Map;
 
 @ControllerAdvice
 public class GlobalControllerExceptionHandler {
@@ -21,39 +23,25 @@ public class GlobalControllerExceptionHandler {
         logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
     }
 
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<String> handleNoResourceFoundException(NoResourceFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({MethodArgumentNotValidException.class, ConstraintViolationException.class})
+    public ResponseEntity<Map<String, String>> handleConstraintsExceptions(Exception e) {
+        return new ResponseEntity<>(ErrorPopulatorUtils.populateErrors(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ModelAndView handleException(Exception e) {
+    public ResponseEntity<String> handleException(Exception e) {
         logger.error(e.getMessage());
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.ERROR_PAGE);
-        modelAndView.addObject("info", e.getMessage());
-        return modelAndView;
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(UserAlreadyExistsException.class)
-    @ResponseStatus(HttpStatus.OK)
-    public ModelAndView handleUserAlreadyExistsException(UserAlreadyExistsException e) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.REGISTER_PAGE);
-        modelAndView.addObject(RequestAttributesNames.STATUS, e.getMessage());
-        modelAndView.addObject(RequestAttributesNames.COLOR, "red");
-        return modelAndView;
-    }
-
-    @ExceptionHandler(AuthorizationException.class)
-    @ResponseStatus(HttpStatus.OK)
-    public ModelAndView handleAuthorizationException(AuthorizationException e) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.LOGIN_PAGE);
-        modelAndView.addObject(RequestAttributesNames.STATUS, e.getMessage());
-        return modelAndView;
-    }
-
-    @ExceptionHandler({InsufficientFundsException.class, NoProductsInOrderException.class})
-    @ResponseStatus(HttpStatus.OK)
-    public ModelAndView handleOrderMakingExceptions(Exception e) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.CART_PAGE);
-        modelAndView.addObject(RequestAttributesNames.STATUS, e.getMessage());
-        modelAndView.addObject(RequestAttributesNames.COLOR, "red");
-        return modelAndView;
+    @ExceptionHandler({UserAlreadyExistsException.class, AuthorizationException.class, InsufficientFundsException.class, NoProductsInOrderException.class})
+    public ResponseEntity<String> handleCustomExceptions(Exception e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.OK);
     }
 }
 

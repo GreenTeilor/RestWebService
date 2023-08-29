@@ -6,15 +6,15 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
     public static String getHash(String message) {
-        MessageDigest digest = null;
+        MessageDigest digest;
         try {
             digest = MessageDigest.getInstance("SHA-256");
             byte[] hashBytes = digest.digest(
                     message.getBytes(StandardCharsets.UTF_8));
 
             StringBuilder hexString = new StringBuilder(2 * hashBytes.length);
-            for (int i = 0; i < hashBytes.length; i++) {
-                String hex = Integer.toHexString(0xff & hashBytes[i]);
+            for (byte hashByte : hashBytes) {
+                String hex = Integer.toHexString(0xff & hashByte);
                 if (hex.length() == 1) {
                     hexString.append('0');
                 }

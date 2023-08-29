@@ -1,84 +1,82 @@
 package by.teachmeskills.springbootproject.services.implementation;
 
-import by.teachmeskills.springbootproject.constants.PagesPaths;
-import by.teachmeskills.springbootproject.constants.RequestAttributesNames;
-import by.teachmeskills.springbootproject.entities.Cart;
+import by.teachmeskills.springbootproject.dto.ProductDto;
+import by.teachmeskills.springbootproject.dto.converters.ProductConverter;
+import by.teachmeskills.springbootproject.dto.CartDto;
 import by.teachmeskills.springbootproject.entities.Product;
-import by.teachmeskills.springbootproject.entities.SearchCriteria;
-import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import by.teachmeskills.springbootproject.repositories.CategoryRepository;
+import by.teachmeskills.springbootproject.dto.SearchCriteriaDto;
+import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.repositories.ProductRepository;
 import by.teachmeskills.springbootproject.services.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
-    private final CategoryRepository categoryRepository;
+    private final ProductConverter productConverter;
 
     @Override
-    public ModelAndView getCategoryProducts(String category) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.CATEGORY_PAGE);
-        List<Product> products = productRepository.getCategoryProducts(category);
-        modelAndView.addObject(RequestAttributesNames.CATEGORY_PRODUCTS, products);
-        return modelAndView;
+    public List<ProductDto> getCategoryProducts(String category) {
+        return productRepository.getCategoryProducts(category).stream().map(productConverter::toDto).toList();
     }
 
     @Override
-    public ModelAndView getProductById(int id) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.PRODUCT_PAGE);
-        Product product = productRepository.getProductById(id);
-        modelAndView.addObject(product.getName());
-        modelAndView.addObject(product);
-        return modelAndView;
+    public ProductDto getProductById(int id) throws NoResourceFoundException {
+        return Optional.ofNullable(productConverter.toDto(productRepository.getProductById(id))).
+                orElseThrow(() -> new NoResourceFoundException("Product with id " + id + " not found"));
     }
 
     @Override
-    public ModelAndView findProducts(SearchCriteria searchCriteria) {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.SEARCH_PAGE);
-        if (searchCriteria.getPaginationNumber() < 1) {
-            searchCriteria.setPaginationNumber(1);
+    public List<ProductDto> findProducts(SearchCriteriaDto searchCriteriaDto) {
+        if (searchCriteriaDto.getPaginationNumber() < 1) {
+            searchCriteriaDto.setPaginationNumber(1);
         }
-        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.findProducts(searchCriteria.getKeyWords(), searchCriteria.getPaginationNumber()));
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read());
-        return modelAndView;
+        return productRepository.findProducts(searchCriteriaDto.getKeyWords(), searchCriteriaDto.getPaginationNumber()).
+                stream().map(productConverter::toDto).toList();
     }
 
     @Override
-    public ModelAndView addProductToCart(int id, Cart cart) {
-        ModelAndView modelAndView = new ModelAndView("redirect:/products/" + id);
-        Product product = productRepository.getProductById(id);
-        cart.addProduct(product);
-        return modelAndView;
+    public CartDto addProductToCart(int id, CartDto cartDto) throws NoResourceFoundException {
+        Product product = Optional.ofNullable(productRepository.getProductById(id)).
+                orElseThrow(() -> new NoResourceFoundException("No product with id: " + id + " found"));
+        cartDto.addProduct(productConverter.toDto(product));
+        return cartDto;
     }
 
     @Override
-    @Transactional
-    public ModelAndView create(Product product) throws UserAlreadyExistsException {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.PRODUCT_PAGE);
-        productRepository.create(product);
-        return modelAndView;
+    public CartDto removeProductFromCart(int id, CartDto cartDto) {
+        cartDto.removeProduct(id);
+        return cartDto;
     }
 
     @Override
-    public ModelAndView read() {
-        ModelAndView modelAndView = new ModelAndView(PagesPaths.SEARCH_PAGE);
-        modelAndView.addObject(RequestAttributesNames.PRODUCTS, productRepository.read());
-        modelAndView.addObject(RequestAttributesNames.CATEGORIES, categoryRepository.read());
-        return modelAndView;
+    public CartDto removeAllProductsFromCart(CartDto cartDto) {
+        cartDto.clear();
+        return cartDto;
     }
 
     @Override
     @Transactional
-    public Product update(Product product) {
-        return productRepository.update(product);
+    public ProductDto create(ProductDto product) {
+        return productConverter.toDto(productRepository.create(productConverter.fromDto(product)));
+    }
+
+    @Override
+    public List<ProductDto> read() {
+        return productRepository.read().stream().map(productConverter::toDto).toList();
+    }
+
+    @Override
+    @Transactional
+    public ProductDto update(ProductDto product) {
+        return productConverter.toDto(productRepository.update(productConverter.fromDto(product)));
     }
 
     @Override

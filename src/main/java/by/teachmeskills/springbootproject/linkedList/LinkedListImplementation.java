@@ -123,8 +123,8 @@ public class LinkedListImplementation<T> {
 
     public void clear() {
         size = 0;
-        tail = new Node<T>();
-        head = new Node<T>(null, tail, null);
+        tail = new Node<>();
+        head = new Node<>(null, tail, null);
         tail.prev = head;
     }
 

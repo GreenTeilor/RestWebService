@@ -1,13 +1,14 @@
 package by.teachmeskills.springbootproject.services;
 
-import by.teachmeskills.springbootproject.entities.BaseEntity;
+import by.teachmeskills.springbootproject.dto.BaseDto;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
-import org.springframework.web.servlet.ModelAndView;
 
-public interface BaseService<T extends BaseEntity> {
-    ModelAndView create(T entity) throws UserAlreadyExistsException;
+import java.util.List;
 
-    ModelAndView read();
+public interface BaseService<T extends BaseDto> {
+    T create(T entity) throws UserAlreadyExistsException;
+
+    List<T> read();
 
     T update(T entity);
 
