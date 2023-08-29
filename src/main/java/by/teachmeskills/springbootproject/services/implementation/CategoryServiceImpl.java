@@ -54,9 +54,13 @@ public class CategoryServiceImpl implements CategoryService {
                     .withSeparator('~')
                     .build();
             List<CategoryDto> categories = new ArrayList<>();
+            List<CategoryDto> result = new ArrayList<>();
             csvToBean.forEach(categories::add);
-            categories.stream().map(categoryConverter::fromDto).forEach(categoryRepository::create);
-            return categories;
+            categories.stream().map(categoryConverter::fromDto).forEach(c -> {
+                categoryRepository.create(c);
+                result.add(categoryConverter.toDto(c));
+            });
+            return result;
         }
     }
 

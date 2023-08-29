@@ -137,10 +137,14 @@ public class UserServiceImpl implements UserService {
                     .withSeparator('~')
                     .build();
             List<OrderProductDto> orderProductDtos = new ArrayList<>();
-            csvToBean.stream().forEach(orderProductDtos::add);
+            List<OrderDto> result = new ArrayList<>();
+            csvToBean.forEach(orderProductDtos::add);
             List<OrderDto> orders = ordersProductsConverter.toOrdersDto(orderProductDtos);
-            orders.stream().map(orderConverter::fromDto).forEach(orderRepository::create);
-            return orders;
+            orders.stream().map(orderConverter::fromDto).forEach(o -> {
+                orderRepository.create(o);
+                result.add(orderConverter.toDto(o));
+            });
+            return result;
         }
     }
 

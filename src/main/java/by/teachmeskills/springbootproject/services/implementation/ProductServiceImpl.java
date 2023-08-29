@@ -99,9 +99,13 @@ public class ProductServiceImpl implements ProductService {
                     .withSeparator('~')
                     .build();
             List<ProductDto> products = new ArrayList<>();
+            List<ProductDto> result = new ArrayList<>();
             csvToBean.forEach(products::add);
-            products.stream().map(productConverter::fromDto).forEach(productRepository::create);
-            return products;
+            products.stream().map(productConverter::fromDto).forEach(p -> {
+                productRepository.create(p);
+                result.add(productConverter.toDto(p));
+            });
+            return result;
         }
     }
 
