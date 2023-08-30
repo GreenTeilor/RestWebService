@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 
 @Tag(name = "cart", description = "Cart endpoints")
 @RestController
-@RequestMapping("cart")
+@RequestMapping("/cart")
 @SessionAttributes(SessionAttributesNames.CART)
 @RequiredArgsConstructor
 @Validated
@@ -55,7 +55,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @PostMapping("addProduct/{id}")
+    @PostMapping("/addProduct/{id}")
     public CartDto addProduct(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id,
                               @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cart object") @Valid @RequestBody CartDto cartDto,
                               BindingResult bindingResult) throws NoResourceFoundException {
@@ -72,7 +72,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = CartDto.class))
             )
     })
-    @DeleteMapping("removeProduct/{id}")
+    @DeleteMapping("/removeProduct/{id}")
     public CartDto removeProduct(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id,
                                  @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cart object") @Valid @RequestBody CartDto cartDto,
                                  BindingResult bindingResult) {
@@ -89,7 +89,7 @@ public class CartController {
                     content = @Content(schema = @Schema(implementation = CartDto.class))
             )
     })
-    @DeleteMapping("clear")
+    @DeleteMapping("/clear")
     public CartDto clear(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Cart object") @Valid @RequestBody CartDto cartDto,
                          BindingResult bindingResult) {
         return productService.removeAllProductsFromCart(cartDto);
@@ -106,7 +106,7 @@ public class CartController {
                             @Content(schema = @Schema(implementation = String.class))}
             ),
     })
-    @PostMapping("makeOrder")
+    @PostMapping("/makeOrder")
     public OrderDto makeOrder(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request object with cart and user") @Valid @RequestBody MakeOrderRequestDto requestDto,
                               BindingResult bindingResult) throws InsufficientFundsException, NoProductsInOrderException {
         return userService.makeOrder(requestDto);

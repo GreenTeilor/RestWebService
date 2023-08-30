@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "profile", description = "Profile endpoints")
 @RestController
-@RequestMapping("profile")
+@RequestMapping("/profile")
 @RequiredArgsConstructor
 @Validated
 public class ProfileController {
@@ -47,7 +47,7 @@ public class ProfileController {
                     content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public UserInfoResponse getUserInfo(@Parameter(description = "User id") @NumberConstraint @PathVariable String id)
             throws NoResourceFoundException {
         return userService.getUserInfo(Integer.parseInt(id));

@@ -18,7 +18,7 @@ import java.util.List;
 
 @Tag(name = "home", description = "Home endpoints")
 @RestController
-@RequestMapping("home")
+@RequestMapping("/home")
 @RequiredArgsConstructor
 public class HomeController {
     private final CategoryService categoryService;

@@ -53,7 +53,7 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @GetMapping("{name}")
+    @GetMapping("/{name}")
     public List<ProductDto> getProducts(@Parameter(description = "Category name") @PathVariable String name) {
         return productService.getCategoryProducts(name);
     }
@@ -68,7 +68,7 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             )
     })
-    @PostMapping("addCategory")
+    @PostMapping("/addCategory")
     public List<CategoryDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto,
                                  BindingResult bindingResult) throws UserAlreadyExistsException {
         categoryService.create(categoryDto);
@@ -84,7 +84,7 @@ public class CategoryController {
                     description = "Category was removed"
             )
     })
-    @DeleteMapping("removeCategory/{id}")
+    @DeleteMapping("/removeCategory/{id}")
     public void remove(@Parameter(description = "Category id") @NumberConstraint @PathVariable String id) {
         categoryService.delete(Integer.parseInt(id));
     }
@@ -99,7 +99,7 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryDto.class))
             )
     })
-    @PutMapping("updateCategory")
+    @PutMapping("/updateCategory")
     public CategoryDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
         return categoryService.update(categoryDto);
     }
@@ -113,7 +113,7 @@ public class CategoryController {
                     description = "Categories were saved"
             )
     })
-    @PostMapping("saveCategories")
+    @PostMapping("/saveCategories")
     public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category objects") @Valid @RequestBody List<CategoryDto> categories,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveToFile(categories);
@@ -129,7 +129,7 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             )
     })
-    @GetMapping ("loadCategories")
+    @PostMapping ("/loadCategories")
     public List<CategoryDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return categoryService.loadFromFile(file);

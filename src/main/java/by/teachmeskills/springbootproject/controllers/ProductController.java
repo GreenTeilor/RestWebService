@@ -35,7 +35,7 @@ import java.util.List;
 
 @Tag(name = "products", description = "Product endpoints")
 @RestController
-@RequestMapping("products")
+@RequestMapping("/products")
 @RequiredArgsConstructor
 @Validated
 public class ProductController {
@@ -51,7 +51,7 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             )
     })
-    @GetMapping("{id}")
+    @GetMapping("/{id}")
     public ProductDto get(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id) throws NoResourceFoundException {
         return productService.getProductById(Integer.parseInt(id));
     }
@@ -65,7 +65,7 @@ public class ProductController {
                     description = "Product was removed"
             )
     })
-    @DeleteMapping("removeProduct/{id}")
+    @DeleteMapping("/removeProduct/{id}")
     public void remove(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id) {
         productService.delete(Integer.parseInt(id));
     }
@@ -80,7 +80,7 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             )
     })
-    @PutMapping("updateProduct")
+    @PutMapping("/updateProduct")
     public ProductDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                              BindingResult bindingResult) {
         return productService.update(productDto);
@@ -96,7 +96,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @PostMapping("createProduct")
+    @PostMapping("/createProduct")
     public List<ProductDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                                 BindingResult bindingResult) throws UserAlreadyExistsException {
         productService.create(productDto);
@@ -112,7 +112,7 @@ public class ProductController {
                     description = "Products were saved"
             )
     })
-    @PostMapping("saveProducts")
+    @PostMapping("/saveProducts")
     public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product objects") @Valid @RequestBody List<ProductDto> products,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         productService.saveToFile(products);
@@ -128,7 +128,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @GetMapping ("loadProducts")
+    @PostMapping ("/loadProducts")
     public List<ProductDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return productService.loadFromFile(file);

@@ -32,7 +32,7 @@ import java.util.List;
 
 @Tag(name = "user", description = "User endpoints")
 @RestController
-@RequestMapping("user")
+@RequestMapping("/user")
 @RequiredArgsConstructor
 @Validated
 public class UserController {
@@ -49,7 +49,7 @@ public class UserController {
                             @Content(schema = @Schema(implementation = String.class))}
             ),
     })
-    @PostMapping("authenticate")
+    @PostMapping("/authenticate")
     public UserDto authenticate(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User object") @Valid @RequestBody UserDto user,
                                 BindingResult bindingResult) throws AuthorizationException {
         return userService.authorizeUser(user.getEmail(), user.getPassword());
@@ -66,7 +66,7 @@ public class UserController {
                             @Content(schema = @Schema(implementation = String.class))}
             )
     })
-    @PostMapping("register")
+    @PostMapping("/register")
     public UserDto register(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User object") @Valid @RequestBody UserDto userDto,
                             BindingResult bindingResult) throws UserAlreadyExistsException {
         return userService.create(userDto);
@@ -81,7 +81,7 @@ public class UserController {
                     description = "Orders were saved"
             )
     })
-    @PostMapping("saveOrders")
+    @PostMapping("/saveOrders")
     public void saveOrdersToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Order objects") @Valid @RequestBody List<OrderDto> orders,
                                  BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         userService.saveOrdersToFile(orders);
@@ -97,7 +97,7 @@ public class UserController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
             )
     })
-    @GetMapping("loadOrders")
+    @PostMapping("/loadOrders")
     public List<OrderDto> loadOrdersFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return userService.loadOrdersFromFile(file);

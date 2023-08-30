@@ -29,7 +29,7 @@ import java.util.List;
 
 @Tag(name = "search", description = "Search endpoints")
 @RestController
-@RequestMapping("search")
+@RequestMapping("/search")
 @SessionAttributes(SessionAttributesNames.SEARCH_CRITERIA)
 @RequiredArgsConstructor
 @Validated
@@ -81,7 +81,7 @@ public class SearchController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @GetMapping("next")
+    @GetMapping("/next")
     public List<ProductDto> findPagedNext(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                           BindingResult bindingResult) {
         searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() + 1);
@@ -98,7 +98,7 @@ public class SearchController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @GetMapping("prev")
+    @GetMapping("/prev")
     public List<ProductDto> findPagedPrev(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                           BindingResult bindingResult) {
         searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() - 1);
@@ -115,7 +115,7 @@ public class SearchController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @GetMapping("{pageNumber}")
+    @GetMapping("/{pageNumber}")
     public List<ProductDto> findPagedNumber(@Parameter(description = "Page number") @NumberConstraint @PathVariable String pageNumber,
                                             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                             BindingResult bindingResult) {
