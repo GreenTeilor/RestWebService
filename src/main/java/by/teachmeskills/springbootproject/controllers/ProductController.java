@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
@@ -114,8 +115,9 @@ public class ProductController {
     })
     @PostMapping("/saveProducts")
     public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product objects") @Valid @RequestBody List<ProductDto> products,
+                           HttpServletResponse response,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
-        productService.saveToFile(products);
+        productService.saveToFile(products, response);
     }
 
     @Operation(

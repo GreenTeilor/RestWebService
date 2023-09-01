@@ -30,6 +30,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,11 +39,10 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -117,13 +117,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void saveOrdersToFile(List<OrderDto> orders) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
-        try (Writer writer = Files.newBufferedWriter(Paths.get("src/main/resources/orders_products.csv"))) {
+    public void saveOrdersToFile(List<OrderDto> orders, HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        try (Writer writer = new OutputStreamWriter(response.getOutputStream())) {
             StatefulBeanToCsv<OrderProductDto> beanToCsv = new StatefulBeanToCsvBuilder<OrderProductDto>(writer)
                     .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                     .withSeparator('~')
                     .build();
-            beanToCsv.write(ordersProductsConverter.fromOrderDto(orders));
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=" + "orders_products.csv");
+            List<OrderProductDto> productCsvs = ordersProductsConverter.fromOrdersDto(orders);
+            beanToCsv.write(productCsvs);
         }
     }
 

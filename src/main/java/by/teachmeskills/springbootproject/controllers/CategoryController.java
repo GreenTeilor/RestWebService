@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
@@ -115,8 +116,9 @@ public class CategoryController {
     })
     @PostMapping("/saveCategories")
     public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category objects") @Valid @RequestBody List<CategoryDto> categories,
+                           HttpServletResponse response,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
-        categoryService.saveToFile(categories);
+        categoryService.saveToFile(categories, response);
     }
 
     @Operation(

@@ -43,7 +43,7 @@ public class OrdersProductsConverter {
         return null;
     }
 
-    public List<OrderProductDto> fromOrderDto(List<OrderDto> ordersDto) {
+    public List<OrderProductDto> fromOrdersDto(List<OrderDto> ordersDto) {
         List<OrderProductDto> ordersProducts = new ArrayList<>();
         AtomicReference<Integer> i = new AtomicReference<>(0);
         if (ordersDto != null) {

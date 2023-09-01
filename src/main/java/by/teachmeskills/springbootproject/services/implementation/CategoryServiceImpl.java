@@ -11,6 +11,7 @@ import com.opencsv.bean.StatefulBeanToCsv;
 import com.opencsv.bean.StatefulBeanToCsvBuilder;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,10 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,12 +34,15 @@ public class CategoryServiceImpl implements CategoryService {
     private final CategoryConverter categoryConverter;
 
     @Override
-    public void saveToFile(List<CategoryDto> categories) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
-        try (Writer writer = Files.newBufferedWriter(Paths.get("src/main/resources/categories.csv"))) {
+    public void saveToFile(List<CategoryDto> categories, HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException {
+        try (Writer writer = new OutputStreamWriter(response.getOutputStream())) {
             StatefulBeanToCsv<CategoryDto> beanToCsv = new StatefulBeanToCsvBuilder<CategoryDto>(writer)
                     .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
                     .withSeparator('~')
                     .build();
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=" + "categories.csv");
+            categories.forEach(c -> c.setId(null));
             beanToCsv.write(categories);
         }
     }
