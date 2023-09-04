@@ -1,5 +1,6 @@
 package by.teachmeskills.springbootproject.services.implementation;
 
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.dto.converters.ProductConverter;
 import by.teachmeskills.springbootproject.dto.CartDto;
@@ -7,6 +8,7 @@ import by.teachmeskills.springbootproject.entities.Product;
 import by.teachmeskills.springbootproject.dto.SearchCriteriaDto;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.repositories.ProductRepository;
+import by.teachmeskills.springbootproject.repositories.ProductSearchSpecification;
 import by.teachmeskills.springbootproject.services.ProductService;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
@@ -17,6 +19,10 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,7 +35,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -39,29 +44,31 @@ public class ProductServiceImpl implements ProductService {
     private final ProductConverter productConverter;
 
     @Override
-    public List<ProductDto> getCategoryProducts(String category) {
-        return productRepository.getCategoryProducts(category).stream().map(productConverter::toDto).toList();
+    public List<ProductDto> getCategoryProducts(String category, PagingParamsDto params) {
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        return productRepository.findAllByCategory_Name(category, paging).stream().map(productConverter::toDto).toList();
     }
 
     @Override
     public ProductDto getProductById(int id) throws NoResourceFoundException {
-        return Optional.ofNullable(productConverter.toDto(productRepository.getProductById(id))).
+        return productRepository.findById(id).map(productConverter::toDto).
                 orElseThrow(() -> new NoResourceFoundException("Product with id " + id + " not found"));
     }
 
     @Override
     public List<ProductDto> findProducts(SearchCriteriaDto searchCriteriaDto) {
-        if (searchCriteriaDto.getPaginationNumber() < 1) {
-            searchCriteriaDto.setPaginationNumber(1);
+        if (searchCriteriaDto.getPageNumber() < 0) {
+            searchCriteriaDto.setPageNumber(0);
         }
-        return productRepository.findProducts(searchCriteriaDto.getKeyWords(), searchCriteriaDto.getPaginationNumber()).
-                stream().map(productConverter::toDto).toList();
+        Pageable paging = PageRequest.of(searchCriteriaDto.getPageNumber(), searchCriteriaDto.getPageSize(), Sort.by("name").ascending());
+        Specification<Product> specification = new ProductSearchSpecification(searchCriteriaDto);
+        return productRepository.findAll(specification, paging).stream().map(productConverter::toDto).toList();
     }
 
     @Override
     public CartDto addProductToCart(int id, CartDto cartDto) throws NoResourceFoundException {
-        Product product = Optional.ofNullable(productRepository.getProductById(id)).
-                orElseThrow(() -> new NoResourceFoundException("No product with id: " + id + " found"));
+        Product product = productRepository.findById(id).
+                orElseThrow(() -> new NoResourceFoundException("No product with id " + id + " found"));
         cartDto.addProduct(productConverter.toDto(product));
         return cartDto;
     }
@@ -105,7 +112,7 @@ public class ProductServiceImpl implements ProductService {
             List<ProductDto> result = new ArrayList<>();
             csvToBean.forEach(products::add);
             products.stream().map(productConverter::fromDto).forEach(p -> {
-                productRepository.create(p);
+                productRepository.save(p);
                 result.add(productConverter.toDto(p));
             });
             return result;
@@ -115,23 +122,26 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional
     public ProductDto create(ProductDto product) {
-        return productConverter.toDto(productRepository.create(productConverter.fromDto(product)));
+        return productConverter.toDto(productRepository.save(productConverter.fromDto(product)));
     }
 
     @Override
-    public List<ProductDto> read() {
-        return productRepository.read().stream().map(productConverter::toDto).toList();
+    public List<ProductDto> read(PagingParamsDto params) {
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        return productRepository.findAll(paging).stream().map(productConverter::toDto).toList();
     }
 
     @Override
     @Transactional
-    public ProductDto update(ProductDto product) {
-        return productConverter.toDto(productRepository.update(productConverter.fromDto(product)));
+    public ProductDto update(ProductDto product) throws NoResourceFoundException {
+        productRepository.findById(product.getId()).orElseThrow(() ->
+                new NoResourceFoundException("No product with id " + product.getId() + " found"));
+        return productConverter.toDto(productRepository.save(productConverter.fromDto(product)));
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        productRepository.delete(id);
+        productRepository.deleteById(id);
     }
 }

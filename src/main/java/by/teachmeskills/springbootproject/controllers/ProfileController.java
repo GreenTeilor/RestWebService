@@ -1,6 +1,7 @@
 package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.constraints.NumberConstraint;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
@@ -48,9 +49,10 @@ public class ProfileController {
             )
     })
     @GetMapping("/{id}")
-    public UserInfoResponse getUserInfo(@Parameter(description = "User id") @NumberConstraint @PathVariable String id)
-            throws NoResourceFoundException {
-        return userService.getUserInfo(Integer.parseInt(id));
+    public UserInfoResponse getUserInfo(@Parameter(description = "User id") @NumberConstraint @PathVariable String id,
+                                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Paging object") @Valid @RequestBody PagingParamsDto params,
+                                        BindingResult bindingResult) throws NoResourceFoundException {
+        return userService.getUserInfo(Integer.parseInt(id), params);
     }
 
     @Operation(
@@ -65,7 +67,7 @@ public class ProfileController {
     })
     @PostMapping
     public UserDto addAddressAndPhoneNumberInfo(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User object") @Valid @RequestBody UserDto userDto,
-                                                BindingResult bindingResult) {
+                                                BindingResult bindingResult) throws NoResourceFoundException {
         return userService.addAddressAndPhoneNumberInfo(userDto.getAddress(), userDto.getPhoneNumber(), userDto);
     }
 

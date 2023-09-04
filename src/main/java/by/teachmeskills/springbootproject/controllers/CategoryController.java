@@ -2,7 +2,9 @@ package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.CategoryDto;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.ProductDto;
+import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
 import by.teachmeskills.springbootproject.services.CategoryService;
 import by.teachmeskills.springbootproject.services.ProductService;
@@ -37,7 +39,7 @@ import java.util.List;
 
 @Tag(name = "categories", description = "Category endpoints")
 @RestController
-@RequestMapping("categories")
+@RequestMapping("/categories")
 @RequiredArgsConstructor
 @Validated
 public class CategoryController {
@@ -55,8 +57,10 @@ public class CategoryController {
             )
     })
     @GetMapping("/{name}")
-    public List<ProductDto> getProducts(@Parameter(description = "Category name") @PathVariable String name) {
-        return productService.getCategoryProducts(name);
+    public List<ProductDto> getProducts(@Parameter(description = "Category name") @PathVariable String name,
+                                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Paging object") @Valid @RequestBody PagingParamsDto params,
+                                        BindingResult bindingResult) {
+        return productService.getCategoryProducts(name, params);
     }
 
     @Operation(
@@ -73,7 +77,7 @@ public class CategoryController {
     public List<CategoryDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto,
                                  BindingResult bindingResult) throws UserAlreadyExistsException {
         categoryService.create(categoryDto);
-        return categoryService.read();
+        return categoryService.read(new PagingParamsDto(0, 100_000_000));
     }
 
     @Operation(
@@ -101,7 +105,7 @@ public class CategoryController {
             )
     })
     @PutMapping("/updateCategory")
-    public CategoryDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) {
+    public CategoryDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws NoResourceFoundException {
         return categoryService.update(categoryDto);
     }
 
@@ -114,8 +118,8 @@ public class CategoryController {
                     description = "Categories were saved"
             )
     })
-    @PostMapping("/saveCategories")
-    public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category objects") @Valid @RequestBody List<CategoryDto> categories,
+    @PostMapping("/csv/export")
+    public void exportToCsv(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category objects") @Valid @RequestBody List<CategoryDto> categories,
                            HttpServletResponse response,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         categoryService.saveToFile(categories, response);
@@ -131,8 +135,8 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             )
     })
-    @PostMapping ("/loadCategories")
-    public List<CategoryDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
+    @PostMapping("/csv/import")
+    public List<CategoryDto> importFromCsv(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return categoryService.loadFromFile(file);
     }

@@ -1,6 +1,7 @@
 package by.teachmeskills.springbootproject.services;
 
 import by.teachmeskills.springbootproject.dto.OrderDto;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
@@ -20,8 +21,8 @@ import java.util.List;
 public interface UserService extends BaseService<UserDto>{
     UserDto getUserById(int id) throws NoResourceFoundException;
     UserDto authorizeUser(String email, String password) throws AuthorizationException;
-    UserInfoResponse getUserInfo(int id) throws NoResourceFoundException;
-    UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user);
+    UserInfoResponse getUserInfo(int id, PagingParamsDto params) throws NoResourceFoundException;
+    UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user) throws NoResourceFoundException;
     Statistics getUserStatistics(int id);
     OrderDto makeOrder(MakeOrderRequestDto requestDto) throws InsufficientFundsException, NoProductsInOrderException;
     void saveOrdersToFile(List<OrderDto> orders, HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;

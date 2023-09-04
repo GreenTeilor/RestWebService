@@ -34,7 +34,7 @@ public class ProductConverter implements Converter<ProductDto, Product> {
                         name(p.getName()).
                         description(p.getDescription()).
                         imagePath(p.getImagePath()).
-                        category(categoryRepository.getCategoryByName(productDto.getCategoryName()).orElse(null)).
+                        category(categoryRepository.findByName(productDto.getCategoryName()).orElse(null)).
                         price(p.getPrice()).
                         build()).
                 orElse(null);

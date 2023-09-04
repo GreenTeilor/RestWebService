@@ -2,6 +2,7 @@ package by.teachmeskills.springbootproject.services.implementation;
 
 import by.teachmeskills.springbootproject.dto.OrderDto;
 import by.teachmeskills.springbootproject.dto.OrderProductDto;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.StatisticsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
@@ -32,6 +33,9 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -61,27 +65,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto getUserById(int id) throws NoResourceFoundException {
-        return userRepository.getUserById(id).map(userConverter::toDto).orElseThrow(() -> new NoResourceFoundException("No user with id " + id + " found"));
+        return userRepository.findById(id).map(userConverter::toDto).orElseThrow(() ->
+                new NoResourceFoundException("No user with id " + id + " found"));
     }
 
     @Override
     public UserDto authorizeUser(String email, String password) throws AuthorizationException {
-        return userRepository.getUser(email, password).map(userConverter::toDto).orElseThrow(() -> new AuthorizationException("User is not authenticated"));
+        return userRepository.findByEmailAndPassword(email, password).map(userConverter::toDto).orElseThrow(() ->
+                new AuthorizationException("User is not authenticated"));
     }
 
     @Override
-    public UserInfoResponse getUserInfo(int id) throws NoResourceFoundException {
+    public UserInfoResponse getUserInfo(int id, PagingParamsDto params) throws NoResourceFoundException {
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("date").descending());
+        List<Order> pagedOrders = orderRepository.findAllByUserId(id, paging);
         UserDto userDto = getUserById(id);
+        userDto.setOrders(pagedOrders.stream().map(orderConverter::toDto).toList());
         StatisticsDto statisticsDto = statisticsConverter.toDto(getUserStatistics(id));
         return new UserInfoResponse(userDto, statisticsDto);
     }
 
     @Override
     @Transactional
-    public UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user) {
+    public UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user) throws NoResourceFoundException {
+        userRepository.findById(user.getId()).orElseThrow(() ->
+                new NoResourceFoundException("No user with id " + user.getId() + " found"));
         user.setAddress(address);
         user.setPhoneNumber(phoneNumber);
-        userRepository.updateAddressAndPhoneNumber(address, phoneNumber, user.getEmail());
+        userRepository.save(userConverter.fromDto(user));
         return user;
     }
 
@@ -110,7 +121,7 @@ public class UserServiceImpl implements UserService {
         OrderDto orderDto = orderConverter.toDto(order);
         userDto.getOrders().add(orderDto);
         userDto.setBalance(userDto.getBalance().subtract(orderPrice));
-        User user = userRepository.update(userConverter.fromDto(userDto));
+        User user = userRepository.save(userConverter.fromDto(userDto));
         cartDto.clear();
         List<Order> orders = user.getOrders();
         return orderConverter.toDto(orders.get(orders.size() - 1));
@@ -144,7 +155,7 @@ public class UserServiceImpl implements UserService {
             csvToBean.forEach(orderProductDtos::add);
             List<OrderDto> orders = ordersProductsConverter.toOrdersDto(orderProductDtos);
             orders.stream().map(orderConverter::fromDto).forEach(o -> {
-                orderRepository.create(o);
+                orderRepository.save(o);
                 result.add(orderConverter.toDto(o));
             });
             return result;
@@ -156,26 +167,29 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto user) throws UserAlreadyExistsException {
         user.setBalance(BigDecimal.valueOf(0.0));
         user.setRegistrationDate(LocalDate.now());
-        if (userRepository.getUserByEmail(user.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Такой пользователь уже существует");
         }
-        return userConverter.toDto(userRepository.create(userConverter.fromDto(user)));
+        return userConverter.toDto(userRepository.save(userConverter.fromDto(user)));
     }
 
     @Override
-    public List<UserDto> read() {
-        return userRepository.read().stream().map(userConverter::toDto).toList();
+    public List<UserDto> read(PagingParamsDto params) {
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        return userRepository.findAll(paging).stream().map(userConverter::toDto).toList();
     }
 
     @Override
     @Transactional
-    public UserDto update(UserDto user) {
-        return userConverter.toDto(userRepository.update(userConverter.fromDto(user)));
+    public UserDto update(UserDto user) throws NoResourceFoundException {
+        userRepository.findById(user.getId()).orElseThrow(() ->
+                new NoResourceFoundException("No user with id " + user.getId() + " found"));
+        return userConverter.toDto(userRepository.save(userConverter.fromDto(user)));
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        userRepository.delete(id);
+        userRepository.deleteById(id);
     }
 }

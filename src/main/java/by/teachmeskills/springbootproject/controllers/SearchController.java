@@ -49,8 +49,8 @@ public class SearchController {
     @GetMapping
     public List<ProductDto> getAllProducts() {
         SearchCriteriaDto searchCriteriaDto = new SearchCriteriaDto();
-        searchCriteriaDto.setKeyWords("");
-        searchCriteriaDto.setPaginationNumber(1);
+        searchCriteriaDto.setPageSize(3);
+        searchCriteriaDto.setPageNumber(0);
         return productService.findProducts(searchCriteriaDto);
     }
 
@@ -67,7 +67,7 @@ public class SearchController {
     @PostMapping
     public List<ProductDto> search(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                    BindingResult bindingResult) {
-        searchCriteriaDto.setPaginationNumber(1);
+        searchCriteriaDto.setPageNumber(0);
         return productService.findProducts(searchCriteriaDto);
     }
 
@@ -84,7 +84,7 @@ public class SearchController {
     @GetMapping("/next")
     public List<ProductDto> findPagedNext(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                           BindingResult bindingResult) {
-        searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() + 1);
+        searchCriteriaDto.setPageNumber(searchCriteriaDto.getPageNumber() + 1);
         return productService.findProducts(searchCriteriaDto);
     }
 
@@ -101,7 +101,7 @@ public class SearchController {
     @GetMapping("/prev")
     public List<ProductDto> findPagedPrev(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                           BindingResult bindingResult) {
-        searchCriteriaDto.setPaginationNumber(searchCriteriaDto.getPaginationNumber() - 1);
+        searchCriteriaDto.setPageNumber(searchCriteriaDto.getPageNumber() - 1);
         return productService.findProducts(searchCriteriaDto);
     }
 
@@ -119,7 +119,7 @@ public class SearchController {
     public List<ProductDto> findPagedNumber(@Parameter(description = "Page number") @NumberConstraint @PathVariable String pageNumber,
                                             @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Search criteria object") @Valid @RequestBody SearchCriteriaDto searchCriteriaDto,
                                             BindingResult bindingResult) {
-        searchCriteriaDto.setPaginationNumber(Integer.parseInt(pageNumber));
+        searchCriteriaDto.setPageNumber(Integer.parseInt(pageNumber));
         return productService.findProducts(searchCriteriaDto);
     }
 }

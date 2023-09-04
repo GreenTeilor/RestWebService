@@ -1,15 +1,20 @@
 package by.teachmeskills.springbootproject.endpoint;
 
+import by.teachmeskills.springbootproject.dto.SearchCriteriaDto;
+import by.teachmeskills.springbootproject.entities.Product;
 import by.teachmeskills.springbootproject.repositories.CategoryRepository;
 import by.teachmeskills.springbootproject.repositories.ProductRepository;
+import by.teachmeskills.springbootproject.repositories.ProductSearchSpecification;
 import by.teachmeskills.springbootproject.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
-import org.springframework.ui.ModelMap;
 import org.springframework.util.StopWatch;
-import org.springframework.web.servlet.ModelAndView;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Component
 @Endpoint(id = "performanceTest")
@@ -21,47 +26,48 @@ public class PerformanceTestEndpoint {
     private final ProductRepository productRepository;
 
     @ReadOperation
-    public ModelAndView getResults() {
-        ModelAndView modelAndView = new ModelAndView("performanceInfo");
-        ModelMap modelMap = new ModelMap();
+    public Map<String, Long> getResults() {
+        Map<String, Long> result = new LinkedHashMap<>();
         long lastResult;
         StopWatch watch = new StopWatch();
 
         watch.start();
-        categoryRepository.read();
+        categoryRepository.findAll();
         watch.stop();
         lastResult = watch.getTotalTimeNanos();
-        modelMap.addAttribute("categoriesReadResult", lastResult);
+        result.put("categoriesReadResult", lastResult);
 
         watch = new StopWatch();
         watch.start();
-        productRepository.read();
+        productRepository.findAll();
         watch.stop();
         lastResult = watch.getTotalTimeNanos();
-        modelMap.addAttribute("productsReadResult", lastResult);
+        result.put("productsReadResult", lastResult);
 
         watch = new StopWatch();
         watch.start();
-        productRepository.getProductById(2);
+        productRepository.findById(2);
         watch.stop();
         lastResult = watch.getTotalTimeNanos();
-        modelMap.addAttribute("productFindResult", lastResult);
+        result.put("productFindResult", lastResult);
 
         watch = new StopWatch();
         watch.start();
-        productRepository.findProducts("Последнее желание", 1);
+        SearchCriteriaDto searchCriteriaDto = new SearchCriteriaDto();
+        searchCriteriaDto.setKeyWords("Последнее желание");
+        Specification<Product> specification = new ProductSearchSpecification(searchCriteriaDto);
+        productRepository.findAll(specification);
         watch.stop();
         lastResult = watch.getTotalTimeNanos();
-        modelMap.addAttribute("productsFindResult", lastResult);
+        result.put("ProductsFindResult", lastResult);
 
         watch = new StopWatch();
         watch.start();
-        userRepository.getUserById(3);
+        userRepository.findById(3);
         watch.stop();
         lastResult = watch.getTotalTimeNanos();
-        modelMap.addAttribute("userFindResult", lastResult);
+        result.put("userFindResult", lastResult);
 
-        modelAndView.addAllObjects(modelMap);
-        return modelAndView;
+        return result;
     }
 }
