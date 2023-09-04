@@ -9,6 +9,13 @@ import by.teachmeskills.springbootproject.exceptions.AuthorizationException;
 import by.teachmeskills.springbootproject.exceptions.InsufficientFundsException;
 import by.teachmeskills.springbootproject.exceptions.NoProductsInOrderException;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 public interface UserService extends BaseService<UserDto>{
     UserDto getUserById(int id) throws NoResourceFoundException;
@@ -17,4 +24,6 @@ public interface UserService extends BaseService<UserDto>{
     UserDto addAddressAndPhoneNumberInfo(String address, String phoneNumber, UserDto user);
     Statistics getUserStatistics(int id);
     OrderDto makeOrder(MakeOrderRequestDto requestDto) throws InsufficientFundsException, NoProductsInOrderException;
+    void saveOrdersToFile(List<OrderDto> orders, HttpServletResponse response) throws IOException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException;
+    List<OrderDto> loadOrdersFromFile(MultipartFile file) throws IOException;
 }
