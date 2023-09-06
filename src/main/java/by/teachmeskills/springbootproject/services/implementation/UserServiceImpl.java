@@ -101,7 +101,7 @@ public class UserServiceImpl implements UserService {
         return Statistics.builder().userId(id).daysRegistered(userRepository.getUserDaysRegistered(id)).
                 orderCount(userRepository.getUserOrdersCount(id)).
                 booksCount(userRepository.getUserPurchasedBooksCount(id)).
-                favoriteGenre(userRepository.getUserFavoriteGenre(id)).build();
+                favoriteGenre(userRepository.getUserFavoriteCategory(id)).build();
     }
 
     @Override

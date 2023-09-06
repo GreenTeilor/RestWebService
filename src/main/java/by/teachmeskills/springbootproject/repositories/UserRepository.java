@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Query(value = "SELECT category FROM (SELECT category, count(*) as count " +
             "FROM orders_products JOIN products ON productId = products.id " +
             "JOIN orders ON orderId = orders.id WHERE userId = ? GROUP BY category) as res1 ORDER BY count DESC LIMIT 1", nativeQuery = true)
-    String getUserFavoriteGenre(int id);
+    String getUserFavoriteCategory(int id);
 
     @Query(value = "SELECT datediff(CURRENT_TIMESTAMP, registrationDate) as result FROM users WHERE id = ?", nativeQuery = true)
     int getUserDaysRegistered(int id);
