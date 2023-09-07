@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -82,8 +81,8 @@ public class UserController {
                     description = "Orders were saved"
             )
     })
-    @PostMapping("/saveOrders")
-    public void saveOrdersToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Order objects") @Valid @RequestBody List<OrderDto> orders,
+    @PostMapping("/csv/exportOrders")
+    public void exportOrdersToCsv(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Order objects") @Valid @RequestBody List<OrderDto> orders,
                                  HttpServletResponse response,
                                  BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         userService.saveOrdersToFile(orders, response);
@@ -99,8 +98,8 @@ public class UserController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrderDto.class)))
             )
     })
-    @PostMapping("/loadOrders")
-    public List<OrderDto> loadOrdersFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
+    @PostMapping("/csv/importOrders")
+    public List<OrderDto> importOrdersFromCsv(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return userService.loadOrdersFromFile(file);
     }

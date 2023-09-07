@@ -2,9 +2,7 @@ package by.teachmeskills.springbootproject.exceptions;
 
 import by.teachmeskills.springbootproject.utils.ErrorPopulatorUtils;
 import jakarta.validation.ConstraintViolationException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -14,14 +12,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.util.Map;
 
 @ControllerAdvice
+@Slf4j
 public class GlobalControllerExceptionHandler {
-
-    private final Logger logger;
-
-    @Autowired
-    GlobalControllerExceptionHandler() {
-        logger = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
-    }
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<String> handleNoResourceFoundException(NoResourceFoundException e) {
@@ -35,7 +27,7 @@ public class GlobalControllerExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
-        logger.error(e.getMessage());
+        log.error(e.getMessage());
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 

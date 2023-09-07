@@ -9,11 +9,11 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>by.teachmeskills</groupId>
-    <artifactId>SpringBootProject</artifactId>
+    <artifactId>RestWebService</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <name>SpringBootProject</name>
-    <description>SpringBootProject</description>
+    <name>RestWebService</name>
+    <description>RestWebService</description>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -60,6 +60,10 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.33</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
         </dependency>
 
         <dependency>

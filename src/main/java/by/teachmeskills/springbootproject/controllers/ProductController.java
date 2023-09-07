@@ -1,6 +1,7 @@
 package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.constraints.NumberConstraint;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.ProductDto;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
@@ -83,7 +84,7 @@ public class ProductController {
     })
     @PutMapping("/updateProduct")
     public ProductDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
-                             BindingResult bindingResult) {
+                             BindingResult bindingResult) throws NoResourceFoundException {
         return productService.update(productDto);
     }
 
@@ -101,7 +102,7 @@ public class ProductController {
     public List<ProductDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                                 BindingResult bindingResult) throws UserAlreadyExistsException {
         productService.create(productDto);
-        return productService.read();
+        return productService.read(new PagingParamsDto(0, Integer.MAX_VALUE));
     }
 
     @Operation(
@@ -113,8 +114,8 @@ public class ProductController {
                     description = "Products were saved"
             )
     })
-    @PostMapping("/saveProducts")
-    public void saveToFile(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product objects") @Valid @RequestBody List<ProductDto> products,
+    @PostMapping("/csv/export")
+    public void exportToCsv(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product objects") @Valid @RequestBody List<ProductDto> products,
                            HttpServletResponse response,
                            BindingResult bindingResult) throws CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, IOException {
         productService.saveToFile(products, response);
@@ -130,8 +131,8 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
-    @PostMapping ("/loadProducts")
-    public List<ProductDto> loadFromFile(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
+    @PostMapping ("/csv/import")
+    public List<ProductDto> importFromCsv(@Parameter(description = "Loaded file") @RequestParam("file") MultipartFile file)
             throws IOException {
         return productService.loadFromFile(file);
     }

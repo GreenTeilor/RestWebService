@@ -1,8 +1,10 @@
 package by.teachmeskills.springbootproject.services.implementation;
 
 import by.teachmeskills.springbootproject.dto.CategoryDto;
+import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.converters.CategoryConverter;
-import by.teachmeskills.springbootproject.repositories.implementation.CategoryRepositoryImpl;
+import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
+import by.teachmeskills.springbootproject.repositories.CategoryRepository;
 import by.teachmeskills.springbootproject.services.CategoryService;
 import com.opencsv.CSVWriter;
 import com.opencsv.bean.CsvToBean;
@@ -13,6 +15,9 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,7 +35,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
-    private final CategoryRepositoryImpl categoryRepository;
+    private final CategoryRepository categoryRepository;
     private final CategoryConverter categoryConverter;
 
     @Override
@@ -60,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
             List<CategoryDto> result = new ArrayList<>();
             csvToBean.forEach(categories::add);
             categories.stream().map(categoryConverter::fromDto).forEach(c -> {
-                categoryRepository.create(c);
+                categoryRepository.save(c);
                 result.add(categoryConverter.toDto(c));
             });
             return result;
@@ -70,23 +75,26 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public CategoryDto create(CategoryDto category) {
-        return categoryConverter.toDto(categoryRepository.create(categoryConverter.fromDto(category)));
+        return categoryConverter.toDto(categoryRepository.save(categoryConverter.fromDto(category)));
     }
 
     @Override
-    public List<CategoryDto> read() {
-        return categoryRepository.read().stream().map(categoryConverter::toDto).toList();
+    public List<CategoryDto> read(PagingParamsDto params) {
+        Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("name").ascending());
+        return categoryRepository.findAll(paging).stream().map(categoryConverter::toDto).toList();
     }
 
     @Override
     @Transactional
-    public CategoryDto update(CategoryDto category) {
-        return categoryConverter.toDto(categoryRepository.update(categoryConverter.fromDto(category)));
+    public CategoryDto update(CategoryDto category) throws NoResourceFoundException {
+        categoryRepository.findById(category.getId()).orElseThrow(() ->
+                new NoResourceFoundException("No category with id " + category.getId() + " found"));
+        return categoryConverter.toDto(categoryRepository.save(categoryConverter.fromDto(category)));
     }
 
     @Override
     @Transactional
     public void delete(int id) {
-        categoryRepository.delete(id);
+        categoryRepository.deleteById(id);
     }
 }
