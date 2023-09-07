@@ -102,7 +102,7 @@ public class ProductController {
     public List<ProductDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                                 BindingResult bindingResult) throws UserAlreadyExistsException {
         productService.create(productDto);
-        return productService.read(new PagingParamsDto(0, 100_000_000));
+        return productService.read(new PagingParamsDto(0, Integer.MAX_VALUE));
     }
 
     @Operation(

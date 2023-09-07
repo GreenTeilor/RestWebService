@@ -77,7 +77,7 @@ public class CategoryController {
     public List<CategoryDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto,
                                  BindingResult bindingResult) throws UserAlreadyExistsException {
         categoryService.create(categoryDto);
-        return categoryService.read(new PagingParamsDto(0, 100_000_000));
+        return categoryService.read(new PagingParamsDto(0, Integer.MAX_VALUE));
     }
 
     @Operation(
