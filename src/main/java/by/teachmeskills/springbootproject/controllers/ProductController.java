@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -67,6 +68,7 @@ public class ProductController {
                     description = "Product was removed"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/removeProduct/{id}")
     public void remove(@Parameter(description = "Product id") @NumberConstraint @PathVariable String id) {
         productService.delete(Integer.parseInt(id));
@@ -82,6 +84,7 @@ public class ProductController {
                     content = @Content(schema = @Schema(implementation = ProductDto.class))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/updateProduct")
     public ProductDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                              BindingResult bindingResult) throws NoResourceFoundException {
@@ -98,6 +101,7 @@ public class ProductController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = ProductDto.class)))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/createProduct")
     public List<ProductDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Product object") @Valid @RequestBody ProductDto productDto,
                                 BindingResult bindingResult) throws UserAlreadyExistsException {

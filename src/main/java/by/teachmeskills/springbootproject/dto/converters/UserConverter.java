@@ -13,6 +13,7 @@ import java.util.Optional;
 public class UserConverter implements Converter<UserDto, User> {
 
     private final OrderConverter orderConverter;
+    private final RoleConverter roleConverter;
 
     @Override
     public UserDto toDto(User user) {
@@ -28,6 +29,7 @@ public class UserConverter implements Converter<UserDto, User> {
                         address(u.getAddress()).
                         phoneNumber(u.getPhoneNumber()).
                         orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::toDto).toList()).orElse(List.of())).
+                        roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::toDto).toList()).orElse(List.of())).
                         build()).
                 orElse(null);
     }
@@ -46,6 +48,7 @@ public class UserConverter implements Converter<UserDto, User> {
                         address(u.getAddress()).
                         phoneNumber(u.getPhoneNumber()).
                         orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::fromDto).toList()).orElse(List.of())).
+                        roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::fromDto).toList()).orElse(List.of())).
                         build()).
                 orElse(null);
     }

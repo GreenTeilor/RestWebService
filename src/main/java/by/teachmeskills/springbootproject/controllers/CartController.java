@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -106,6 +107,7 @@ public class CartController {
                             @Content(schema = @Schema(implementation = String.class))}
             ),
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/makeOrder")
     public OrderDto makeOrder(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request object with cart and user") @Valid @RequestBody MakeOrderRequestDto requestDto,
                               BindingResult bindingResult) throws InsufficientFundsException, NoProductsInOrderException {

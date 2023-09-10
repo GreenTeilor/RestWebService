@@ -36,6 +36,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,6 +63,7 @@ public class UserServiceImpl implements UserService {
     private final StatisticsConverter statisticsConverter;
     private final OrdersProductsConverter ordersProductsConverter;
     private final OrderRepository orderRepository;
+    private final PasswordEncoder encoder;
 
     @Override
     public UserDto getUserById(int id) throws NoResourceFoundException {
@@ -167,6 +169,7 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto user) throws UserAlreadyExistsException {
         user.setBalance(BigDecimal.valueOf(0.0));
         user.setRegistrationDate(LocalDate.now());
+        user.setPassword(encoder.encode(user.getPassword()));
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Такой пользователь уже существует");
         }

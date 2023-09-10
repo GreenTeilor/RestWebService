@@ -58,4 +58,7 @@ public class UserDto extends BaseDto {
 
     @NotNull(message = "Empty user orders")
     private List<OrderDto> orders;
+
+    @NotNull(message = "Empty user roles")
+    private List<RoleDto> roles;
 }
