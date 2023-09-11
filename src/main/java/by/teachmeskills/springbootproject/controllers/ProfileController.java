@@ -1,10 +1,10 @@
 package by.teachmeskills.springbootproject.controllers;
 
-import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
+import by.teachmeskills.springbootproject.services.AuthService;
 import by.teachmeskills.springbootproject.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,14 +14,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "profile", description = "Profile endpoints")
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProfileController {
 
     private final UserService userService;
+    private final AuthService authService;
 
     @Operation(
             summary = "Get user info",
@@ -48,11 +50,10 @@ public class ProfileController {
                     content = @Content(schema = @Schema(implementation = String.class))
             )
     })
-    @GetMapping("/{id}")
-    public UserInfoResponse getUserInfo(@Parameter(description = "User id") @NumberConstraint @PathVariable String id,
-                                        @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Paging object") @Valid @RequestBody PagingParamsDto params,
+    @GetMapping
+    public UserInfoResponse getUserInfo(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Paging object") @Valid @RequestBody PagingParamsDto params,
                                         BindingResult bindingResult) throws NoResourceFoundException {
-        return userService.getUserInfo(Integer.parseInt(id), params);
+        return userService.getUserInfo(authService.getPrincipal().map(UserDto::getId).orElse(null), params);
     }
 
     @Operation(
@@ -66,9 +67,15 @@ public class ProfileController {
             )
     })
     @PostMapping
-    public UserDto addAddressAndPhoneNumberInfo(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User object") @Valid @RequestBody UserDto userDto,
-                                                BindingResult bindingResult) throws NoResourceFoundException {
-        return userService.addAddressAndPhoneNumberInfo(userDto.getAddress(), userDto.getPhoneNumber(), userDto);
+    public UserDto addAddressAndPhoneNumberInfo(@Parameter(description = "User address")
+                                                @Size(min = 10, max = 90, message = "User address length is less than 10 or more than 90")
+                                                @RequestParam("address") String address,
+                                                @Parameter(description = "User phoneNumber")
+                                                //Doesn't work for some reason
+                                                //@Pattern(regexp = "^\\+375((29)|(44)|(25)|(33))[0-9]{7}$", message = "Incorrect user phone number")
+                                                @RequestParam("phoneNumber") String phoneNumber)
+            throws NoResourceFoundException {
+        return userService.addAddressAndPhoneNumberInfo(address, phoneNumber, authService.getPrincipal().orElse(null));
     }
 
 }

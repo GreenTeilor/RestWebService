@@ -5,7 +5,6 @@ import by.teachmeskills.springbootproject.dto.OrderProductDto;
 import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.StatisticsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
-import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.dto.converters.OrderConverter;
 import by.teachmeskills.springbootproject.dto.converters.OrdersProductsConverter;
@@ -16,7 +15,6 @@ import by.teachmeskills.springbootproject.dto.CartDto;
 import by.teachmeskills.springbootproject.entities.Order;
 import by.teachmeskills.springbootproject.entities.Statistics;
 import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.exceptions.AuthorizationException;
 import by.teachmeskills.springbootproject.exceptions.InsufficientFundsException;
 import by.teachmeskills.springbootproject.exceptions.NoProductsInOrderException;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
@@ -72,12 +70,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto authorizeUser(String email, String password) throws AuthorizationException {
-        return userRepository.findByEmailAndPassword(email, password).map(userConverter::toDto).orElseThrow(() ->
-                new AuthorizationException("User is not authenticated"));
-    }
-
-    @Override
     public UserInfoResponse getUserInfo(int id, PagingParamsDto params) throws NoResourceFoundException {
         Pageable paging = PageRequest.of(params.getPageNumber(), params.getPageSize(), Sort.by("date").descending());
         List<Order> pagedOrders = orderRepository.findAllByUserId(id, paging);
@@ -108,9 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public OrderDto makeOrder(MakeOrderRequestDto requestDto) throws InsufficientFundsException, NoProductsInOrderException {
-        UserDto userDto = requestDto.getUserDto();
-        CartDto cartDto = requestDto.getCartDto();
+    public OrderDto makeOrder(UserDto userDto, CartDto cartDto) throws InsufficientFundsException, NoProductsInOrderException {
         BigDecimal orderPrice = cartDto.getPrice();
         if (userDto.getBalance().compareTo(orderPrice) < 0) {
             throw new InsufficientFundsException("Insufficient funds");

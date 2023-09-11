@@ -17,11 +17,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final TokenRepository tokenRepository;
@@ -30,6 +32,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder encoder;
 
     @Override
+    @Transactional
     public JwtResponseDto login(@NonNull JwtRequestDto authRequest) throws AuthorizationException {
         UserDto user = userRepository.findByEmail(authRequest.getEmail()).map(userConverter::toDto)
                 .orElseThrow(() -> new AuthorizationException("User is not found"));
@@ -69,6 +72,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public JwtResponseDto refresh(@NonNull String refreshToken) throws AuthorizationException {
         if (jwtProvider.validateRefreshToken(refreshToken)) {
             Claims claims = jwtProvider.getRefreshClaims(refreshToken);
