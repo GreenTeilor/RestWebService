@@ -4,10 +4,10 @@ import by.teachmeskills.springbootproject.constants.SessionAttributesNames;
 import by.teachmeskills.springbootproject.constraints.NumberConstraint;
 import by.teachmeskills.springbootproject.dto.OrderDto;
 import by.teachmeskills.springbootproject.dto.CartDto;
-import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
 import by.teachmeskills.springbootproject.exceptions.InsufficientFundsException;
 import by.teachmeskills.springbootproject.exceptions.NoProductsInOrderException;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
+import by.teachmeskills.springbootproject.services.AuthService;
 import by.teachmeskills.springbootproject.services.ProductService;
 import by.teachmeskills.springbootproject.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,6 +40,7 @@ public class CartController {
 
     private final ProductService productService;
     private final UserService userService;
+    private final AuthService authService;
 
     @Operation(
             summary = "Add product",
@@ -106,9 +108,10 @@ public class CartController {
                             @Content(schema = @Schema(implementation = String.class))}
             ),
     })
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/makeOrder")
-    public OrderDto makeOrder(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request object with cart and user") @Valid @RequestBody MakeOrderRequestDto requestDto,
+    public OrderDto makeOrder(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Request object with cart and user") @Valid @RequestBody CartDto cartDto,
                               BindingResult bindingResult) throws InsufficientFundsException, NoProductsInOrderException {
-        return userService.makeOrder(requestDto);
+        return userService.makeOrder(authService.getPrincipal().orElse(null), cartDto);
     }
 }

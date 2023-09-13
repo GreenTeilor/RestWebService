@@ -7,12 +7,14 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 public class UserConverter implements Converter<UserDto, User> {
 
     private final OrderConverter orderConverter;
+    private final RoleConverter roleConverter;
 
     @Override
     public UserDto toDto(User user) {
@@ -27,7 +29,8 @@ public class UserConverter implements Converter<UserDto, User> {
                         password(u.getPassword()).
                         address(u.getAddress()).
                         phoneNumber(u.getPhoneNumber()).
-                        orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::toDto).toList()).orElse(List.of())).
+                        orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::toDto).collect(Collectors.toList())).orElse(List.of())).
+                        roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::toDto).collect(Collectors.toList())).orElse(List.of())).
                         build()).
                 orElse(null);
     }
@@ -45,7 +48,8 @@ public class UserConverter implements Converter<UserDto, User> {
                         password(u.getPassword()).
                         address(u.getAddress()).
                         phoneNumber(u.getPhoneNumber()).
-                        orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::fromDto).toList()).orElse(List.of())).
+                        orders(Optional.ofNullable(u.getOrders()).map(orders -> orders.stream().map(orderConverter::fromDto).collect(Collectors.toList())).orElse(List.of())).
+                        roles(Optional.ofNullable(u.getRoles()).map(roles -> roles.stream().map(roleConverter::fromDto).collect(Collectors.toList())).orElse(List.of())).
                         build()).
                 orElse(null);
     }

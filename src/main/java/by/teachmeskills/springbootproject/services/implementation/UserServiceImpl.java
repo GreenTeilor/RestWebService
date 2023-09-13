@@ -5,7 +5,6 @@ import by.teachmeskills.springbootproject.dto.OrderProductDto;
 import by.teachmeskills.springbootproject.dto.PagingParamsDto;
 import by.teachmeskills.springbootproject.dto.StatisticsDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
-import by.teachmeskills.springbootproject.dto.complex.MakeOrderRequestDto;
 import by.teachmeskills.springbootproject.dto.complex.UserInfoResponse;
 import by.teachmeskills.springbootproject.dto.converters.OrderConverter;
 import by.teachmeskills.springbootproject.dto.converters.OrdersProductsConverter;
@@ -16,7 +15,6 @@ import by.teachmeskills.springbootproject.dto.CartDto;
 import by.teachmeskills.springbootproject.entities.Order;
 import by.teachmeskills.springbootproject.entities.Statistics;
 import by.teachmeskills.springbootproject.entities.User;
-import by.teachmeskills.springbootproject.exceptions.AuthorizationException;
 import by.teachmeskills.springbootproject.exceptions.InsufficientFundsException;
 import by.teachmeskills.springbootproject.exceptions.NoProductsInOrderException;
 import by.teachmeskills.springbootproject.exceptions.NoResourceFoundException;
@@ -36,6 +34,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,17 +61,12 @@ public class UserServiceImpl implements UserService {
     private final StatisticsConverter statisticsConverter;
     private final OrdersProductsConverter ordersProductsConverter;
     private final OrderRepository orderRepository;
+    private final PasswordEncoder encoder;
 
     @Override
     public UserDto getUserById(int id) throws NoResourceFoundException {
         return userRepository.findById(id).map(userConverter::toDto).orElseThrow(() ->
                 new NoResourceFoundException("No user with id " + id + " found"));
-    }
-
-    @Override
-    public UserDto authorizeUser(String email, String password) throws AuthorizationException {
-        return userRepository.findByEmailAndPassword(email, password).map(userConverter::toDto).orElseThrow(() ->
-                new AuthorizationException("User is not authenticated"));
     }
 
     @Override
@@ -106,9 +100,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public OrderDto makeOrder(MakeOrderRequestDto requestDto) throws InsufficientFundsException, NoProductsInOrderException {
-        UserDto userDto = requestDto.getUserDto();
-        CartDto cartDto = requestDto.getCartDto();
+    public OrderDto makeOrder(UserDto userDto, CartDto cartDto) throws InsufficientFundsException, NoProductsInOrderException {
         BigDecimal orderPrice = cartDto.getPrice();
         if (userDto.getBalance().compareTo(orderPrice) < 0) {
             throw new InsufficientFundsException("Insufficient funds");
@@ -167,6 +159,7 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto user) throws UserAlreadyExistsException {
         user.setBalance(BigDecimal.valueOf(0.0));
         user.setRegistrationDate(LocalDate.now());
+        user.setPassword(encoder.encode(user.getPassword()));
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Такой пользователь уже существует");
         }

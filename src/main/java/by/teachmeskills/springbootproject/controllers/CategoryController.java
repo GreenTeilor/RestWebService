@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,6 +74,7 @@ public class CategoryController {
                     content = @Content(array = @ArraySchema(schema = @Schema(implementation = CategoryDto.class)))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/addCategory")
     public List<CategoryDto> add(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto,
                                  BindingResult bindingResult) throws UserAlreadyExistsException {
@@ -89,6 +91,7 @@ public class CategoryController {
                     description = "Category was removed"
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/removeCategory/{id}")
     public void remove(@Parameter(description = "Category id") @NumberConstraint @PathVariable String id) {
         categoryService.delete(Integer.parseInt(id));
@@ -104,6 +107,7 @@ public class CategoryController {
                     content = @Content(schema = @Schema(implementation = CategoryDto.class))
             )
     })
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/updateCategory")
     public CategoryDto update(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Category object") @Valid @RequestBody CategoryDto categoryDto, BindingResult bindingResult) throws NoResourceFoundException {
         return categoryService.update(categoryDto);

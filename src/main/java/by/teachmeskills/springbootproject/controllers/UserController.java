@@ -2,7 +2,6 @@ package by.teachmeskills.springbootproject.controllers;
 
 import by.teachmeskills.springbootproject.dto.OrderDto;
 import by.teachmeskills.springbootproject.dto.UserDto;
-import by.teachmeskills.springbootproject.exceptions.AuthorizationException;
 import by.teachmeskills.springbootproject.exceptions.UserAlreadyExistsException;
 import by.teachmeskills.springbootproject.services.UserService;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -37,23 +36,6 @@ import java.util.List;
 @Validated
 public class UserController {
     private final UserService userService;
-
-    @Operation(
-            summary = "Authenticate user",
-            description = "Authenticate user by email and password")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Authorized\tNot authorized",
-                    content = {@Content(schema = @Schema(implementation = UserDto.class)),
-                            @Content(schema = @Schema(implementation = String.class))}
-            ),
-    })
-    @PostMapping("/authenticate")
-    public UserDto authenticate(@io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User object") @Valid @RequestBody UserDto user,
-                                BindingResult bindingResult) throws AuthorizationException {
-        return userService.authorizeUser(user.getEmail(), user.getPassword());
-    }
 
     @Operation(
             summary = "Register user",

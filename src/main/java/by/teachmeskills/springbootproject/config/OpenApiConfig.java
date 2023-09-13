@@ -17,6 +17,14 @@ public class OpenApiConfig {
 
     /** Group beans*/
     @Bean
+    public GroupedOpenApi publicAuthApi() {
+        return GroupedOpenApi.builder()
+                .group("auth")
+                .pathsToMatch("/**/auth/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi publicCartApi() {
         return GroupedOpenApi.builder()
                 .group("cart")
@@ -81,7 +89,7 @@ public class OpenApiConfig {
                         .version(appVersion)
                         .description(appDescription)
                         .license(new License().name("Apache 2.0")
-                                .url("http://springdoc.org"))
+                                .url("https://springdoc.org"))
                         //Contact information about organization of exposed API
                         .contact(new Contact().name("TeachMeSkills")
                                 .email("tms@gmail.com")))
